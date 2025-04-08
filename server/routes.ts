@@ -1,6 +1,7 @@
 import express, { type Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { adonisBridge } from "./adonis-bridge";
 import { z } from "zod";
 import { 
   insertUserSchema, 
@@ -21,6 +22,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   const asyncHandler = (fn: Function) => (req: Request, res: Response, next: Function) => {
     Promise.resolve(fn(req, res, next)).catch(next);
   };
+  
+  // Feature flag to determine whether to use AdonisJS or in-memory storage
+  const USE_ADONIS = false; // Change to true when AdonisJS is fully set up
   
   // User routes
   apiRouter.get("/users", asyncHandler(async (req: Request, res: Response) => {

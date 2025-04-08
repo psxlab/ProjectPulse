@@ -6,6 +6,8 @@ import {
   tasks, Task, InsertTask,
   comments, Comment, InsertComment
 } from "@shared/schema";
+import { db } from "./database";
+import { and, eq, like } from "drizzle-orm";
 
 // Interface for storage operations
 export interface IStorage {
@@ -438,4 +440,174 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database storage implementation
+export class DbStorage implements IStorage {
+  // User operations
+  async getUser(id: number): Promise<User | undefined> {
+    return (await db.query.users.findFirst({
+      where: eq(users.id, id)
+    }));
+  }
+  
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return (await db.query.users.findFirst({
+      where: eq(users.username, username)
+    }));
+  }
+  
+  async createUser(userData: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(userData).returning();
+    return result[0];
+  }
+  
+  async getUsers(): Promise<User[]> {
+    return await db.query.users.findMany();
+  }
+  
+  // Team operations
+  async getTeam(id: number): Promise<Team | undefined> {
+    return (await db.query.teams.findFirst({
+      where: eq(teams.id, id)
+    }));
+  }
+  
+  async createTeam(teamData: InsertTeam): Promise<Team> {
+    const result = await db.insert(teams).values(teamData).returning();
+    return result[0];
+  }
+  
+  async getTeams(): Promise<Team[]> {
+    return await db.query.teams.findMany();
+  }
+  
+  // Team member operations
+  async getTeamMembers(teamId: number): Promise<TeamMember[]> {
+    return await db.query.teamMembers.findMany({
+      where: eq(teamMembers.teamId, teamId)
+    });
+  }
+  
+  async addTeamMember(teamMemberData: InsertTeamMember): Promise<TeamMember> {
+    const result = await db.insert(teamMembers).values(teamMemberData).returning();
+    return result[0];
+  }
+  
+  async removeTeamMember(teamId: number, userId: number): Promise<boolean> {
+    const result = await db.delete(teamMembers)
+      .where(and(
+        eq(teamMembers.teamId, teamId),
+        eq(teamMembers.userId, userId)
+      ))
+      .returning();
+      
+    return result.length > 0;
+  }
+  
+  // Project operations
+  async getProject(id: number): Promise<Project | undefined> {
+    return (await db.query.projects.findFirst({
+      where: eq(projects.id, id)
+    }));
+  }
+  
+  async createProject(projectData: InsertProject): Promise<Project> {
+    const result = await db.insert(projects).values(projectData).returning();
+    return result[0];
+  }
+  
+  async updateProject(id: number, projectData: Partial<InsertProject>): Promise<Project | undefined> {
+    const result = await db.update(projects)
+      .set(projectData)
+      .where(eq(projects.id, id))
+      .returning();
+      
+    return result[0];
+  }
+  
+  async getProjects(): Promise<Project[]> {
+    return await db.query.projects.findMany();
+  }
+  
+  async getProjectsByTeam(teamId: number): Promise<Project[]> {
+    return await db.query.projects.findMany({
+      where: eq(projects.teamId, teamId)
+    });
+  }
+  
+  // Task operations
+  async getTask(id: number): Promise<Task | undefined> {
+    return (await db.query.tasks.findFirst({
+      where: eq(tasks.id, id)
+    }));
+  }
+  
+  async createTask(taskData: InsertTask): Promise<Task> {
+    const result = await db.insert(tasks).values(taskData).returning();
+    return result[0];
+  }
+  
+  async updateTask(id: number, taskData: Partial<InsertTask>): Promise<Task | undefined> {
+    const result = await db.update(tasks)
+      .set(taskData)
+      .where(eq(tasks.id, id))
+      .returning();
+      
+    return result[0];
+  }
+  
+  async deleteTask(id: number): Promise<boolean> {
+    const result = await db.delete(tasks)
+      .where(eq(tasks.id, id))
+      .returning();
+      
+    return result.length > 0;
+  }
+  
+  async getTasks(): Promise<Task[]> {
+    return await db.query.tasks.findMany();
+  }
+  
+  async getTasksByProject(projectId: number): Promise<Task[]> {
+    return await db.query.tasks.findMany({
+      where: eq(tasks.projectId, projectId)
+    });
+  }
+  
+  async getTasksByAssignee(assigneeId: number): Promise<Task[]> {
+    return await db.query.tasks.findMany({
+      where: eq(tasks.assigneeId, assigneeId)
+    });
+  }
+  
+  async getTasksByStatus(projectId: number, status: string): Promise<Task[]> {
+    return await db.query.tasks.findMany({
+      where: and(
+        eq(tasks.projectId, projectId),
+        eq(tasks.status, status)
+      )
+    });
+  }
+  
+  // Comment operations
+  async getComment(id: number): Promise<Comment | undefined> {
+    return (await db.query.comments.findFirst({
+      where: eq(comments.id, id)
+    }));
+  }
+  
+  async createComment(commentData: InsertComment): Promise<Comment> {
+    const result = await db.insert(comments).values(commentData).returning();
+    return result[0];
+  }
+  
+  async getCommentsByTask(taskId: number): Promise<Comment[]> {
+    return await db.query.comments.findMany({
+      where: eq(comments.taskId, taskId),
+      orderBy: (comments, { asc }) => [asc(comments.createdAt)]
+    });
+  }
+}
+
+// Choose whether to use the in-memory storage or database storage
+// const storage = new MemStorage();
+export const storage = new DbStorage();
