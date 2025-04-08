@@ -75,9 +75,11 @@ export default function TaskCreateModal({
   
   const onSubmit = (data: TaskFormValues) => {
     // Convert string date to Date object if provided
+    // Handle 'unassigned' value for assigneeId
     const formattedData = {
       ...data,
       dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+      assigneeId: data.assigneeId === "unassigned" ? null : data.assigneeId ? Number(data.assigneeId) : null,
     };
     
     mutate(formattedData, {
@@ -243,7 +245,7 @@ export default function TaskCreateModal({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
                         {users?.map((user) => (
                           <SelectItem key={user.id} value={user.id.toString()}>
                             {user.name}
