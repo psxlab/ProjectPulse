@@ -18,7 +18,7 @@ import {
   User,
   Send,
 } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -187,7 +187,7 @@ export default function TaskDetailModal({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl">
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold">{task?.title}</h2>
+          <DialogTitle className="text-xl font-semibold">{task?.title}</DialogTitle>
           <Button variant="ghost" size="icon" onClick={onClose}>
             <X className="h-4 w-4" />
           </Button>
@@ -399,7 +399,7 @@ export default function TaskDetailModal({
                         <SelectValue placeholder="Unassigned" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">Unassigned</SelectItem>
+                        <SelectItem value="unassigned">Unassigned</SelectItem>
                         {users?.map((user) => (
                           <SelectItem key={user.id} value={user.id.toString()}>
                             {user.name}

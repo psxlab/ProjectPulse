@@ -36,27 +36,33 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         <div className="mb-4">
           <p className="px-3 text-xs font-semibold uppercase text-neutral-500">Main Menu</p>
           <Link href="/">
-            <a className={`mt-2 flex items-center rounded-lg px-3 py-2 text-sm font-medium ${
+            <div className={`mt-2 flex items-center rounded-lg px-3 py-2 text-sm font-medium ${
               location === "/" 
                 ? "bg-primary-light/10 text-primary" 
                 : "text-neutral-700 hover:bg-neutral-100"
             }`}>
               <LayoutDashboard className="mr-3 h-5 w-5" />
               Dashboard
-            </a>
+            </div>
           </Link>
-          <a className="mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-            <FileText className="mr-3 h-5 w-5" />
-            Projects
-          </a>
-          <a className="mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-            <Users className="mr-3 h-5 w-5" />
-            Teams
-          </a>
-          <a className="mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
-            <BarChart3 className="mr-3 h-5 w-5" />
-            Reports
-          </a>
+          <Link href="/projects">
+            <div className="mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+              <FileText className="mr-3 h-5 w-5" />
+              Projects
+            </div>
+          </Link>
+          <Link href="/teams">
+            <div className="mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+              <Users className="mr-3 h-5 w-5" />
+              Teams
+            </div>
+          </Link>
+          <Link href="/reports">
+            <div className="mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-100">
+              <BarChart3 className="mr-3 h-5 w-5" />
+              Reports
+            </div>
+          </Link>
         </div>
 
         <div className="mb-4">
@@ -71,7 +77,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           ) : (
             projects?.map(project => (
               <Link key={project.id} href={`/projects/${project.id}`}>
-                <a className={`mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium ${
+                <div className={`mt-1 flex items-center rounded-lg px-3 py-2 text-sm font-medium ${
                   location === `/projects/${project.id}` 
                     ? "bg-primary-light/10 text-primary" 
                     : "text-neutral-700 hover:bg-neutral-100"
@@ -81,7 +87,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     style={{ backgroundColor: project.color }}
                   ></span>
                   {project.name}
-                </a>
+                </div>
               </Link>
             ))
           )}
